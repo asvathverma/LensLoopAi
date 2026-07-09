@@ -1,0 +1,6 @@
+{
+  "name": "LensLoop",
+  "description": "LensLoop is a comprehensive social video platform featuring reels, live streaming, direct messaging, user authentication, profile customization, feed, stories, explore, and search.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
