@@ -25,13 +25,13 @@ fun LensLoopBottomNav(
         color = Color.Black,
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
             .background(Color.Black)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .height(60.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -107,26 +107,18 @@ private fun RowScope.BottomNavItem(
 ) {
     val contentColor = if (isSelected) Color.White else Color(0xFF8E8E8E)
     
-    Column(
+    Box(
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()
             .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
             contentDescription = label,
             tint = contentColor,
-            modifier = Modifier.size(24.dp)
-        )
-        Text(
-            text = label,
-            color = contentColor,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(top = 2.dp)
+            modifier = Modifier.size(28.dp)
         )
     }
 }

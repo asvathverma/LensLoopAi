@@ -33,6 +33,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.models.MediaType
 import java.util.UUID
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +46,24 @@ fun CreatePostScreen(
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                viewModel.addMedia(uri.toString(), MediaType.IMAGE)
+            }
+        }
+    )
+
+    val videoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                viewModel.addMedia(uri.toString(), MediaType.VIDEO)
+            }
+        }
+    )
 
     LaunchedEffect(state.uploadStatus) {
         if (state.uploadStatus == UploadStatus.SUCCESS) {
@@ -106,11 +129,26 @@ fun CreatePostScreen(
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                         ) {
-                            Icon(
-                                imageVector = if (item.type == MediaType.VIDEO) Icons.Default.Videocam else Icons.Default.Image,
-                                contentDescription = null,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
+                            if (item.uri.startsWith("content://") || item.uri.startsWith("http")) {
+                                AsyncImage(
+                                    model = item.uri,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                if (item.type == MediaType.VIDEO) {
+                                    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)), contentAlignment = Alignment.Center) {
+                                        Icon(Icons.Default.Videocam, contentDescription = "Video", tint = Color.White, modifier = Modifier.size(48.dp))
+                                    }
+                                }
+                            } else {
+                                Icon(
+                                    imageVector = if (item.type == MediaType.VIDEO) Icons.Default.Videocam else Icons.Default.Image,
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                            
                             IconButton(
                                 onClick = { viewModel.removeMedia(index) },
                                 modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(24.dp)
@@ -138,7 +176,9 @@ fun CreatePostScreen(
                                     .size(120.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-                                    .clickable { viewModel.addMedia("mock_image_${UUID.randomUUID()}", MediaType.IMAGE) },
+                                    .clickable { 
+                                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                    },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -151,7 +191,9 @@ fun CreatePostScreen(
                                     .size(120.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-                                    .clickable { viewModel.addMedia("mock_video_${UUID.randomUUID()}", MediaType.VIDEO) },
+                                    .clickable { 
+                                        videoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
+                                    },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {

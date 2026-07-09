@@ -23,6 +23,12 @@ class FeedViewModel : ViewModel() {
 
     init {
         loadFeed()
+        viewModelScope.launch {
+            com.example.data.PostRepository.localPosts.collect { local ->
+                val currentMocks = generateMockPosts()
+                _feedPosts.value = rankPosts(local + currentMocks)
+            }
+        }
     }
 
     fun loadFeed() {
@@ -30,7 +36,8 @@ class FeedViewModel : ViewModel() {
             _isLoading.value = true
             kotlinx.coroutines.delay(1000)
             val mockPosts = generateMockPosts()
-            _feedPosts.value = rankPosts(mockPosts)
+            val local = com.example.data.PostRepository.localPosts.value
+            _feedPosts.value = rankPosts(local + mockPosts)
             _stories.value = generateMockStories()
             _isLoading.value = false
         }

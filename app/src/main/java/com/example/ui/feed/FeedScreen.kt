@@ -320,27 +320,41 @@ fun PostItem(
             ) { page ->
                 val media = post.media[page]
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = if (media.type == MediaType.VIDEO) Icons.Default.Videocam else Icons.Default.Image,
+                    if (media.url.startsWith("content://") || media.url.startsWith("http")) {
+                        coil.compose.AsyncImage(
+                            model = media.url,
                             contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = if (media.type == MediaType.VIDEO) "Video Player Placeholder" else "Image Placeholder",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        if (!media.slideCaption.isNullOrBlank()) {
-                            Spacer(modifier = Modifier.height(8.dp))
+                        if (media.type == MediaType.VIDEO) {
+                            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Videocam, contentDescription = "Video", tint = Color.White, modifier = Modifier.size(64.dp))
+                            }
+                        }
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = if (media.type == MediaType.VIDEO) Icons.Default.Videocam else Icons.Default.Image,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = media.slideCaption,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(4.dp)).padding(8.dp)
+                                text = if (media.type == MediaType.VIDEO) "Video Player Placeholder" else "Image Placeholder",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                    if (!media.slideCaption.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = media.slideCaption,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(4.dp)).padding(8.dp)
+                        )
                     }
 
                     // Product Tags Overlay

@@ -251,6 +251,25 @@ class CreatePostViewModel : ViewModel() {
             }
             
             _state.update { it.copy(uploadStatus = UploadStatus.SUCCESS, processingMessage = "Shared!") }
+            
+            val mediaList = _state.value.mediaItems.map { 
+                com.example.models.FeedMedia(url = it.uri, type = it.type, slideCaption = it.slideCaption) 
+            }
+            val postType = if (mediaList.size > 1) com.example.models.PostType.CAROUSEL else if (mediaList.firstOrNull()?.type == com.example.models.MediaType.VIDEO) com.example.models.PostType.VIDEO else com.example.models.PostType.PHOTO
+            
+            val newPost = com.example.models.Post(
+                id = java.util.UUID.randomUUID().toString(),
+                author = com.example.models.UserShort("local_user", "You", null),
+                media = mediaList,
+                type = postType,
+                caption = _state.value.globalCaption,
+                timestamp = System.currentTimeMillis(),
+                likesCount = 0,
+                commentsCount = 0,
+                location = _state.value.selectedLocation
+            )
+            com.example.data.PostRepository.addPost(newPost)
+            
             delay(1000)
             _state.update { CreatePostState() }
         }
